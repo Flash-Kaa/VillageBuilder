@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace VillageBuilder
 {
-    public enum ResourcesTypes
+    public enum ResourceType
     {
         Wood,
         Stone,

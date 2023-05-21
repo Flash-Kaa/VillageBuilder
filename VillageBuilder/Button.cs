@@ -13,12 +13,12 @@ namespace VillageBuilder
         private Color _color;
         private bool _isPressed;
         private Texture2D _texture;
-        private Action<bool> _onClick;
+        private Action<object> _onClick;
         private double _pressedTime;
 
         private const double MaxSecondDelay = 0.3;
 
-        public Button(Texture2D sprite, Rectangle buttonCollider, Action<bool> onClick)
+        public Button(Texture2D sprite, Rectangle buttonCollider, Action<object> onClick)
         {
             _texture = sprite;
             ButtonCollider = buttonCollider;

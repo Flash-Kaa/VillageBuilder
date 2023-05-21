@@ -1,47 +1,52 @@
 ﻿using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace VillageBuilder
 {
     public class PlayMode : IGameMode
     {
-        public static bool HaveStartedExecutingCommands { get; set; }
+        public static ObjectToBuy obj;
+
+
         public static Vector2 StandartRect;
+        public static Camera Camera;
+        public static bool OnBuildMode = false;
+        public static Texture2D SelectedTexture;
 
-        private bool _doFirstAfterPress;
-        private Cell[,] _cells; // width, height
+        private const int CellsInWidth = 30;
+        private const int CellsInHeight = 16;
+        private const float ShareInWidthUI = 0.25f;
 
-        // Для TextBox
+        public static Resource[] Resources;
         private SpriteFont _font;
+        private Cell[,] _cells; // width, height
+        private UI _ui;
 
-        private const int CellsInWidth = 15;
-        private const int CellsInHeight = 8;
-
-        private const int CellsInWidthForUI = 4;
-
-        private Resource[] resources;
+        private Vector2 _start;
+        private Vector2 _end;
 
         public PlayMode()
         {
-            _doFirstAfterPress = true;
-            HaveStartedExecutingCommands = false;
+            var fieldSize = new Vector2(
+                Game1.Graphics.PreferredBackBufferWidth * 3f, 
+                Game1.Graphics.PreferredBackBufferHeight * 3f);
+
+            _start = new Vector2(0,0);
+            _end = fieldSize + 
+                new Vector2(Game1.Graphics.PreferredBackBufferWidth * ShareInWidthUI, 0);
 
             StandartRect = new Vector2(
-                Game1.Graphics.PreferredBackBufferWidth / CellsInWidth, 
-                Game1.Graphics.PreferredBackBufferHeight / CellsInHeight);
-        }
+                fieldSize.X / CellsInWidth,
+                fieldSize.Y / CellsInHeight);
 
+            Camera = new Camera(_start, _end, 1);
+        }
 
         public void Initialize()
         {
-            UpdateLocationAndSize();
-
             _font = Game1.ContentManage.Load<SpriteFont>(@"Fonts/VlaShu");
 
-            _cells = new Cell[CellsInWidth - CellsInWidthForUI, CellsInHeight];
+            _cells = new Cell[CellsInWidth, CellsInHeight];
             for (int i = 0; i < _cells.GetLength(0); i++)
             {
                 for(int j= 0; j < _cells.GetLength(1); j++)
@@ -51,33 +56,51 @@ namespace VillageBuilder
                 }
             }
 
-            var widthRes =  _cells.GetLength(0) * StandartRect.X;
+            var widthRes = Game1.Graphics.PreferredBackBufferWidth * (1 -ShareInWidthUI);
 
             var resourceRectSize = new Vector2(
                 widthRes, 
-                StandartRect.Y);
+                StandartRect.Y/2);
 
             var woodTexture = Game1.ContentManage.Load<Texture2D>(@"Sprites/wood");
             var ironTexture = Game1.ContentManage.Load<Texture2D>(@"Sprites/iron");
             var stoneTexture = Game1.ContentManage.Load<Texture2D>(@"Sprites/stone");
 
-            resources = new[]
+            Resources = new[]
             {
-                new Resource(ResourcesTypes.Wood, 20, new Rectangle(new Point((int)widthRes, 0), resourceRectSize.ToPoint()), woodTexture, _font),
-                new Resource(ResourcesTypes.Stone, 0, new Rectangle(new Point((int)widthRes, (int)StandartRect.Y), resourceRectSize.ToPoint()), stoneTexture, _font),
-                new Resource(ResourcesTypes.Iron, 0, new Rectangle(new Point((int)widthRes, (int)StandartRect.Y * 2), resourceRectSize.ToPoint()), ironTexture, _font)
+                new Resource(ResourceType.Wood, 20, woodTexture, _font),
+                new Resource(ResourceType.Stone, 1000000, stoneTexture, _font),
+                new Resource(ResourceType.Iron, 0, ironTexture, _font)
             };
+
+            _ui = new UI(new Rectangle(new Point((int)widthRes, 0), 
+                new Point(
+                    (int)(Game1.Graphics.PreferredBackBufferWidth * ShareInWidthUI), 
+                    Game1.Graphics.PreferredBackBufferHeight)), Resources);
+
+            _ui.Initialize();
         }
 
         public void Update(GameTime gameTime)
         {
-            
+            Camera.Update(gameTime);
+            _ui.Update(gameTime);
+
+
+            for (int i = 0; i < _cells.GetLength(0); i++)
+            {
+                for (int j = 0; j < _cells.GetLength(1); j++)
+                {
+                    _cells[i, j].Update(gameTime);
+                }
+            }
         }
 
         public void Draw(SpriteBatch spriteBatch)
         {
             Game1.Graphics.GraphicsDevice.Clear(Color.ForestGreen);
 
+            spriteBatch.Begin(transformMatrix: Camera.GetTransformationMatrix());
 
             for (int i = 0; i < _cells.GetLength(0); i++)
             {
@@ -87,15 +110,13 @@ namespace VillageBuilder
                 }
             }
 
-            foreach (var res in resources)
-            {
-                res.Draw(spriteBatch);
-            }
-        }
+            spriteBatch.End();
 
-        public void UpdateLocationAndSize()
-        {
+            spriteBatch.Begin();
 
+            _ui.Draw(spriteBatch);
+
+            spriteBatch.End();
         }
     }
 }

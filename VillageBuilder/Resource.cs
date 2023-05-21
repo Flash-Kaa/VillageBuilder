@@ -23,7 +23,7 @@ namespace VillageBuilder
             }
         }
 
-        public ResourcesTypes Type { get; }
+        public ResourceType Type { get; }
         private Rectangle _rect;
         private Texture2D _texture;
         private SpriteFont _font;
@@ -31,18 +31,13 @@ namespace VillageBuilder
         private Rectangle _rectSprite;
         private Rectangle _rectText;
 
-        public Resource(ResourcesTypes type, int count, Rectangle rect, Texture2D texture, SpriteFont font)
+        public Resource(ResourceType type, int count, Texture2D texture, SpriteFont font)
         {
             Type = type;
             Count = count;
-            _rect = rect;
             _texture = texture;
             _font = font;
-
-            _rectSprite = new Rectangle(rect.Location, new Point(rect.Size.Y, rect.Size.Y));
-            _rectText = new Rectangle(rect.Location + new Point(rect.Size.Y, 0), new Point(rect.Size.X - rect.Size.Y, rect.Size.Y));
         }
-
 
         public void Initialize()
         {
@@ -55,7 +50,15 @@ namespace VillageBuilder
         public void Draw(SpriteBatch spriteBatch)
         {
             spriteBatch.Draw(_texture, _rectSprite, Color.White);
-            spriteBatch.DrawString(_font, Count.ToString(), _rectText.Location.ToVector2(), Color.White, 0f, Vector2.Zero, _rectText.Size.Y / _font.MeasureString("M").Y, SpriteEffects.None, 0f);
+            spriteBatch.DrawString(_font, Count.ToString(), _rectText.Location.ToVector2(), Color.Black, 0f, Vector2.Zero, _rectText.Size.Y / _font.MeasureString("M").Y, SpriteEffects.None, 0f);
+        }
+
+        public void AddRect(Rectangle rect)
+        {
+            _rect = rect;
+
+            _rectSprite = new Rectangle(rect.Location, new Point(rect.Size.Y, rect.Size.Y));
+            _rectText = new Rectangle(rect.Location + new Point(rect.Size.Y, 0), new Point(rect.Size.X - rect.Size.Y, rect.Size.Y));
         }
     }
 }

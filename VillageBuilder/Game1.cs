@@ -64,12 +64,9 @@ namespace VillageBuilder
         {
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
-            SpriteBatch.Begin();
-
             if(Scenes.ContainsKey(CurrentScene))
                 Scenes[CurrentScene].Draw(SpriteBatch);
 
-            SpriteBatch.End();
 
             base.Draw(gameTime);
         }

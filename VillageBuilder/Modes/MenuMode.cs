@@ -59,9 +59,12 @@ namespace VillageBuilder
         public void Draw(SpriteBatch spriteBatch)
         {
             Game1.Graphics.GraphicsDevice.Clear(Color.DarkGreen);
+            spriteBatch.Begin();
 
             _startButton.Draw(spriteBatch);
             _screenResolutionButtons.ForEach(x => x.Draw(spriteBatch));
+
+            spriteBatch.End();
         }
 
         private void CreateStartButton()
@@ -113,7 +116,7 @@ namespace VillageBuilder
                         Game1.Graphics.IsFullScreen = true;
                         Game1.Graphics.ApplyChanges();
 
-                        Game1.Scenes.ToList().ForEach(x => x.Value.UpdateLocationAndSize());
+                        UpdateLocationAndSize();
                     }
                     ));
 
@@ -135,14 +138,6 @@ namespace VillageBuilder
 
             CreateStartButton();
             CreateScreenResolutionUpdateButtons();
-        }
-
-        public void Draw(GameTime gameTime)
-        {
-            Game1.Graphics.GraphicsDevice.Clear(Color.DarkGreen);
-
-            _startButton.Draw(Game1.SpriteBatch);
-            _screenResolutionButtons.ForEach(x => x.Draw(Game1.SpriteBatch));
         }
     }
 }
